@@ -7,8 +7,9 @@ if [ ! -f /app/jobs.db ]; then
   sqlite3 /app/jobs.db < /app/init.sql
 fi
 
-# Fix permissions (read/write for all users)
+# Fix permissions
 chmod 666 /app/jobs.db
+chmod 777 /app
 
 # Start CUPS
 echo "Starting CUPS..."
