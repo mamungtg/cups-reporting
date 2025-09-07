@@ -3,45 +3,53 @@ pipeline {
 
     environment {
         REGISTRY    = "192.168.100.102:5000"
-        IMAGE_NAME  = "cups-reporting"
+        APP_NAME    = "cups-reporting"
+        IMAGE       = "${REGISTRY}/${APP_NAME}:${BUILD_NUMBER}"
         NAMESPACE   = "printing"
-        HELM_RELEASE = "cups-reporting"
     }
 
     stages {
-        stage('Docker Build & Push') {
+        stage('Checkout') {
             steps {
-                script {
-                    withCredentials([usernamePassword(
-                        credentialsId: 'docker-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS')]) {
-                        sh """
-                            echo $DOCKER_PASS | docker login $REGISTRY -u $DOCKER_USER --password-stdin
-                            docker build -t $REGISTRY/$IMAGE_NAME:${BUILD_NUMBER} .
-                            docker push $REGISTRY/$IMAGE_NAME:${BUILD_NUMBER}
-                        """
-                    }
-                }
+                git branch: 'main',
+                    url: 'git@github.com:mamungtg/cups-reporting.git',
+                    credentialsId: 'github-ssh'
             }
         }
 
-        stage('Helm Deploy') {
+        stage('Build Docker Image') {
             steps {
-                script {
-                    withCredentials([file(
-                        credentialsId: 'kubeconfig-secret',
-                        variable: 'KUBECONFIG')]) {
-                        sh """
-                            export KUBECONFIG=$KUBECONFIG
-                            helm upgrade --install $HELM_RELEASE charts/cups-reporting-helm \
-                                --namespace $NAMESPACE --create-namespace \
-                                --set image.repository=$REGISTRY/$IMAGE_NAME \
-                                --set image.tag=${BUILD_NUMBER}
-                        """
-                    }
-                }
+                sh "docker build -t ${IMAGE} ."
             }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                sh "docker push ${IMAGE}"
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh """
+                helm upgrade --install ${APP_NAME} charts/cups-reporting-helm \
+                    --namespace ${NAMESPACE} --create-namespace \
+                    --set image.repository=${REGISTRY}/${APP_NAME} \
+                    --set image.tag=${BUILD_NUMBER}
+                """
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                sh "kubectl rollout status deployment/${APP_NAME} -n ${NAMESPACE} --timeout=60s"
+            }
+        }
+    }
+
+    post {
+        failure {
+            sh "kubectl rollout undo deployment/${APP_NAME} -n ${NAMESPACE}"
         }
     }
 }
