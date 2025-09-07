@@ -16,10 +16,13 @@ fi
 chmod 777 /data
 chmod 666 /data/jobs.db || true
 
-# Start CUPS
+# Start CUPS in background
 echo "Starting CUPS..."
 cupsd -f &
 
-# Start Flask
+# Sleep briefly to let CUPS settle
+sleep 2
+
+# Start Flask and replace shell with it
 echo "Starting Flask..."
-python3 /app/app.py
+exec python3 /app/app.py
