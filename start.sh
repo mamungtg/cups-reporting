@@ -12,16 +12,17 @@ if [ ! -f /data/jobs.db ]; then
   chmod 666 /data/jobs.db
 fi
 
+# Always reset perms
 chmod 777 /data
 chmod 666 /data/jobs.db || true
 
 # Start CUPS in background
 echo "Starting CUPS..."
-cupsd -f &
+/usr/sbin/cupsd -f &
 
-# Give CUPS a moment
+# Give CUPS time to settle
 sleep 2
 
-# Start Flask (this replaces shell, container stays alive)
+# Start Flask in foreground (keeps container alive)
 echo "Starting Flask..."
 exec python3 /app/app.py
