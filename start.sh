@@ -12,7 +12,6 @@ if [ ! -f /data/jobs.db ]; then
   chmod 666 /data/jobs.db
 fi
 
-# Double check perms every run
 chmod 777 /data
 chmod 666 /data/jobs.db || true
 
@@ -20,9 +19,9 @@ chmod 666 /data/jobs.db || true
 echo "Starting CUPS..."
 cupsd -f &
 
-# Sleep briefly to let CUPS settle
+# Give CUPS a moment
 sleep 2
 
-# Start Flask and replace shell with it
+# Start Flask (this replaces shell, container stays alive)
 echo "Starting Flask..."
 exec python3 /app/app.py
