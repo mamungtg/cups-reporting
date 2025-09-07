@@ -1,18 +1,4 @@
-replicaCount: 1
-
-image:
-  repository: 192.168.100.102:5000/cups-reporting
-  tag: latest
-  pullPolicy: IfNotPresent
-
-service:
-  type: NodePort
-  ports:
-    - name: cups
-      port: 631
-      targetPort: 631
-      nodePort: 30631
-    - name: reporting
-      port: 5000
-      targetPort: 5000
-      nodePort: 30500
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClassName: ""
