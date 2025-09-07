@@ -8,12 +8,13 @@ pipeline {
         HELM_RELEASE = "cups-reporting"
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/mamungtg/cups-reporting.git', credentialsId: 'github-credentials'
-            }
-        }
+    stage('Checkout') {
+    steps {
+        git branch: 'main',
+            url: 'https://github.com/mamungtg/cups-reporting.git',
+            credentialsId: 'github-credentials'
+    }
+}
 
         stage('Docker Build & Push') {
             steps {
