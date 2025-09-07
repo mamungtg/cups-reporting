@@ -1,20 +1,29 @@
-FROM ubuntu:22.04
+FROM python:3.10-slim
 
-# Install dependencies
+# Install CUPS + SQLite
 RUN apt-get update && apt-get install -y \
     cups \
-    python3 python3-pip \
+    cups-client \
+    sqlite3 \
     && rm -rf /var/lib/apt/lists/*
-
-# Install Python libs
-RUN pip3 install flask pandas matplotlib sqlalchemy
 
 # Copy reporting app
 WORKDIR /app
 COPY reporting/ /app/
 
-# Expose CUPS (631) and Flask (5000)
+# Initialize SQLite database
+COPY reporting/init.sql /app/init.sql
+RUN sqlite3 /app/jobs.db < /app/init.sql
+
+# Copy start script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Install Python dependencies
+RUN pip install --no-cache-dir flask pandas matplotlib
+
+# Expose ports
 EXPOSE 631 5000
 
-# Start CUPS + Python app
-CMD service cups start && python3 app.py
+# Start both services
+CMD ["/start.sh"]

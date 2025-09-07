@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    printer TEXT,
+    user TEXT,
+    pages INTEGER
+);
