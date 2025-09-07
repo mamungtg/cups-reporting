@@ -9,8 +9,6 @@ pipeline {
     }
 
     stages {
-        // Jenkins will automatically check out the repo here (Declarative checkout)
-
         stage('Docker Build & Push') {
             steps {
                 script {
@@ -44,15 +42,6 @@ pipeline {
                     }
                 }
             }
-        }
-    }
-
-    post {
-        success {
-            echo "✅ Deployment succeeded!"
-        }
-        failure {
-            echo "❌ Pipeline failed. Check logs for error details."
         }
     }
 }
