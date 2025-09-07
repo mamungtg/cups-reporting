@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cups-reporting
+description: Helm chart for CUPS with reporting
+version: 0.1.0
+appVersion: "1.0"

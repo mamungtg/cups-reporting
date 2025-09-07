@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: cups-reporting
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: 631
+        - containerPort: 5000
+        volumeMounts:
+        - name: cups-logs
+          mountPath: /var/log/cups
+      volumes:
+      - name: cups-logs
+        persistentVolumeClaim:
+          claimName: {{ .Release.Name }}-pvc
