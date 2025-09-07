@@ -1,17 +1,19 @@
 #!/bin/bash
 set -e
 
-# Ensure jobs.db exists at runtime
+# Initialize DB if missing
 if [ ! -f /app/jobs.db ]; then
   echo "Initializing jobs.db..."
   sqlite3 /app/jobs.db < /app/init.sql
-  chown -R $(whoami) /app/jobs.db
 fi
+
+# Fix permissions (read/write for all users)
+chmod 666 /app/jobs.db
 
 # Start CUPS
 echo "Starting CUPS..."
 cupsd -f &
 
-# Start Flask app
+# Start Flask
 echo "Starting Flask..."
 python3 /app/app.py
