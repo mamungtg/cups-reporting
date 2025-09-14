@@ -20,9 +20,9 @@ chmod 666 /data/jobs.db || true
 echo "Starting CUPS..."
 /usr/sbin/cupsd -f &
 
-# Give CUPS time to settle
+# Give CUPS a second to settle
 sleep 2
 
-# Start Flask in foreground (keeps container alive)
+# Start Flask as PID 1 (keeps container alive)
 echo "Starting Flask..."
-exec python3 /app/app.py
+exec python3 -m flask run --host=0.0.0.0 --port=5000 --no-debugger
